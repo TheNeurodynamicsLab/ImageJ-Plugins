@@ -5,17 +5,96 @@
  */
 package NDL_Plugins;
 
+import ij.ImageListener;
+import ij.ImagePlus;
+import ij.WindowManager;
+import ij.gui.ImageCanvas;
+import ij.gui.ImageWindow;
+import ij.gui.OvalRoi;
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 /**
  *
  * @author Balaji
  */
-public class TimeSeries_3D_Analyser extends javax.swing.JFrame {
-
+public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnable, MouseListener/*required for add on click*/,ImageListener /*required for knowing if the active image is been closed*/ {
+    
+    RoiManager Manager;               //Handle to store and access the native ROIManager Instance. 
+    ImagePlus currentImp,currSlice;   //Place holders to store and refer the currently active imageplus and the current displayed slice
+                                      //in that stack.
+    ImageCanvas currCanvas;           //stores the canvas of the currentImp; Used for listening mouseclick events in this canvas. Required for
+                                      //implementing add on click feature of this plugin.
+    boolean activeImage = false;      //booblean variable to store if there is a current active image. TRUE => there is a actie image;
+    //ImageStack currStk;
+    
+    ArrayList<Roi3D> Rois3D; 
+    DefaultListModel<String> Roi3DListModel;
+    
+    ArrayList<Roi> Rois2D;
+    DefaultListModel<String> Roi2DListModel;
+   
+    boolean done = false;
+    ImageCanvas previousCanvas;
+    Thread thread;
+    
+    /**
+     * Settings options for autoROI properties are managed in the section bellow
+     */
+    
+    String autoROIPrefix;
+    
     /**
      * Creates new form TimeSeries_3D_Analyser
      */
     public TimeSeries_3D_Analyser() {
+        
+        if(RoiManager.getInstance() == null){       //No previous instance of Roi Manager; User has not invoked the ROIManager tool yet. 
+             Manager = new RoiManager();            //Create a new instance of the RoiManager and obtain a handle to it.
+        }else{
+             Manager = RoiManager.getInstance();     //Roi MAnager is in use. Get the instance handle and store it for us to use.
+        }
+       
+        currentImp = ij.WindowManager.getCurrentImage(); //Obtain the  currently displayed image in ImageJ If multiple images are open we get the imageplus of the active window.
+                                                         //If none of the images are open, the windowmanager returns null and it is stored in currentImp. 
+        if(currentImp   != null){
+            activeImage = true;                          // The windowmanger of ImageJ returned a non-null value. There is an active image.
+        }else{
+            currCanvas  = null;                          // The windowmanager returned null => no images open. So no canvas and active image is set to false
+            activeImage = false;
+        }
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        }
         initComponents();
+        
+        Roi2DListModel = new DefaultListModel();
+        this.gui2DRoiList.setModel(Roi2DListModel);
+        Roi3DListModel = new DefaultListModel();
+        this.gui3DRoiList.setModel(Roi3DListModel);
+        
+        this.setVisible(true);
+        thread = new Thread(this,"Time Series ");
+        thread.setPriority(Math.max(thread.getPriority()-2,Thread.MIN_PRIORITY));
+        thread.start();
+          
+        
     }
 
     /**
@@ -27,25 +106,746 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        guiSettingsWindow = new javax.swing.JFrame();
+        guiSettingsTab = new javax.swing.JTabbedPane();
+        guireCtrProperties = new javax.swing.JPanel();
+        guiautoROIProperties = new javax.swing.JPanel();
+        guiroiPrefix = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        gui3DDepth = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        guiroiWidth = new javax.swing.JTextField();
+        guiroiHeight = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jButton8 = new javax.swing.JButton();
+        jButton10 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        mv2Manager = new javax.swing.JButton();
+        addto3Dlist = new javax.swing.JButton();
+        remove2Dfrom3D = new javax.swing.JButton();
+        transferfromManager = new javax.swing.JButton();
+        recenterIn2D = new javax.swing.JButton();
+        recenterProperties = new javax.swing.JButton();
+        buttonExit = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        AddOnClick = new javax.swing.JCheckBox();
+        jButton6 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        make3Dbutton = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
+        deconstruct3Dto2D = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        add3Dradbtn = new javax.swing.JRadioButton();
+        add2Dradbtn = new javax.swing.JRadioButton();
+        jButton11 = new javax.swing.JButton();
+        buttonOpen3DRois = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        gui3DRoiList = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        gui2DRoiList = new javax.swing.JList<>();
+        clear2DButton = new javax.swing.JButton();
+        byPassChkbox = new javax.swing.JCheckBox();
+
+        javax.swing.GroupLayout guireCtrPropertiesLayout = new javax.swing.GroupLayout(guireCtrProperties);
+        guireCtrProperties.setLayout(guireCtrPropertiesLayout);
+        guireCtrPropertiesLayout.setHorizontalGroup(
+            guireCtrPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 431, Short.MAX_VALUE)
+        );
+        guireCtrPropertiesLayout.setVerticalGroup(
+            guireCtrPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 245, Short.MAX_VALUE)
+        );
+
+        guiSettingsTab.addTab("Recenter Properties", guireCtrProperties);
+
+        guiroiPrefix.setText("ROI_");
+        guiroiPrefix.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guiroiPrefixActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Roi Prefix");
+
+        gui3DDepth.setText("10");
+        gui3DDepth.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gui3DDepthActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("3D Roi Depth (nslices)");
+
+        guiroiWidth.setText("10");
+
+        guiroiHeight.setText("10");
+        guiroiHeight.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guiroiHeightActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Roi Width");
+
+        jLabel6.setText("Roi Height");
+
+        jLabel7.setText("Roi Shape");
+
+        jButton8.setText("OK");
+
+        jButton10.setText("Cancel");
+
+        javax.swing.GroupLayout guiautoROIPropertiesLayout = new javax.swing.GroupLayout(guiautoROIProperties);
+        guiautoROIProperties.setLayout(guiautoROIPropertiesLayout);
+        guiautoROIPropertiesLayout.setHorizontalGroup(
+            guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guiautoROIPropertiesLayout.createSequentialGroup()
+                .addGap(72, 72, 72)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel7)
+                    .addGroup(guiautoROIPropertiesLayout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jButton8)
+                        .addGap(34, 34, 34)
+                        .addComponent(jButton10)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(guiroiWidth)
+                    .addComponent(guiroiPrefix, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
+                    .addComponent(gui3DDepth)
+                    .addComponent(guiroiHeight))
+                .addGap(44, 44, 44))
+        );
+        guiautoROIPropertiesLayout.setVerticalGroup(
+            guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guiautoROIPropertiesLayout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(guiroiPrefix, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(gui3DDepth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(guiroiHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(guiroiWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addGroup(guiautoROIPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton8)
+                    .addComponent(jButton10))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        guiSettingsTab.addTab("Auto ROI Settings", guiautoROIProperties);
+
+        javax.swing.GroupLayout guiSettingsWindowLayout = new javax.swing.GroupLayout(guiSettingsWindow.getContentPane());
+        guiSettingsWindow.getContentPane().setLayout(guiSettingsWindowLayout);
+        guiSettingsWindowLayout.setHorizontalGroup(
+            guiSettingsWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guiSettingsWindowLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(guiSettingsTab)
+                .addContainerGap())
+        );
+        guiSettingsWindowLayout.setVerticalGroup(
+            guiSettingsWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guiSettingsWindowLayout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(guiSettingsTab)
+                .addContainerGap())
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Time Series 3D");
+
+        jLabel1.setText("3D Roi List");
+
+        jLabel2.setText("2D Rois");
+
+        mv2Manager.setText("Move to ROI Manager");
+        mv2Manager.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mv2ManagerActionPerformed(evt);
+            }
+        });
+
+        addto3Dlist.setText("Add 2D Roi to 3D Roi  List");
+        addto3Dlist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addto3DlistActionPerformed(evt);
+            }
+        });
+
+        remove2Dfrom3D.setText("Remove 2D Roi from 3D ");
+        remove2Dfrom3D.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                remove2Dfrom3DActionPerformed(evt);
+            }
+        });
+
+        transferfromManager.setText("Transfer Rois from Manager ");
+        transferfromManager.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                transferfromManagerActionPerformed(evt);
+            }
+        });
+
+        recenterIn2D.setText("Recenter in 2D");
+        recenterIn2D.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                recenterIn2DActionPerformed(evt);
+            }
+        });
+
+        recenterProperties.setText("Recenter Properties");
+
+        buttonExit.setText("Done !");
+
+        AddOnClick.setText("Add on click");
+        AddOnClick.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddOnClickActionPerformed(evt);
+            }
+        });
+
+        jButton6.setText("Recenter in 3D");
+
+        jButton4.setText("Define Overlap");
+
+        jButton1.setText("Measure in 3D");
+
+        make3Dbutton.setText("Make 3D Roi");
+        make3Dbutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                make3DbuttonActionPerformed(evt);
+            }
+        });
+
+        jButton9.setText("Auto 3D Roi Properties");
+
+        deconstruct3Dto2D.setText("Deconstruct  3D to 2D");
+        deconstruct3Dto2D.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deconstruct3Dto2DActionPerformed(evt);
+            }
+        });
+
+        jButton7.setText("View ROi Properties");
+        jButton7.setEnabled(false);
+
+        jButton5.setText("Generate Gaussian Objects");
+
+        jButton3.setText("Detect Overlap");
+
+        jButton2.setText("Set Measurements");
+        jButton2.setEnabled(false);
+
+        buttonGroup1.add(add3Dradbtn);
+        add3Dradbtn.setText("Add 3D ROi");
+        add3Dradbtn.setEnabled(false);
+
+        buttonGroup1.add(add2Dradbtn);
+        add2Dradbtn.setSelected(true);
+        add2Dradbtn.setText("Add 2D ROi");
+        add2Dradbtn.setEnabled(false);
+
+        jButton11.setText("Save 3D Rois");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        buttonOpen3DRois.setText("Open 3D Rois");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(55, 55, 55)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(add2Dradbtn)
+                    .addComponent(add3Dradbtn))
+                .addGap(131, 131, 131))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(make3Dbutton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(deconstruct3Dto2D, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(AddOnClick)
+                    .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(buttonOpen3DRois, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {deconstruct3Dto2D, jButton1, jButton2, jButton3, jButton4, jButton5, jButton6, jButton7, jButton9, make3Dbutton});
+
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton9)
+                .addGap(1, 1, 1)
+                .addComponent(jButton7)
+                .addGap(1, 1, 1)
+                .addComponent(make3Dbutton)
+                .addGap(1, 1, 1)
+                .addComponent(deconstruct3Dto2D)
+                .addGap(2, 2, 2)
+                .addComponent(jButton6)
+                .addGap(1, 1, 1)
+                .addComponent(jButton1)
+                .addGap(1, 1, 1)
+                .addComponent(jButton2)
+                .addGap(1, 1, 1)
+                .addComponent(jButton3)
+                .addGap(1, 1, 1)
+                .addComponent(jButton4)
+                .addGap(2, 2, 2)
+                .addComponent(jButton5)
+                .addGap(1, 1, 1)
+                .addComponent(jButton11)
+                .addGap(1, 1, 1)
+                .addComponent(buttonOpen3DRois)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                .addComponent(AddOnClick)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(add3Dradbtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(add2Dradbtn)
+                .addContainerGap())
+        );
+
+        gui3DRoiList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(gui3DRoiList);
+
+        jScrollPane2.setViewportView(gui2DRoiList);
+
+        clear2DButton.setForeground(new java.awt.Color(255, 51, 51));
+        clear2DButton.setText("Clear List !!");
+        clear2DButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clear2DButtonActionPerformed(evt);
+            }
+        });
+
+        byPassChkbox.setText("ByPass Roi Manager");
+        byPassChkbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                byPassChkboxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(352, 352, 352)
+                        .addComponent(jLabel1)
+                        .addGap(194, 194, 194)
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(mv2Manager, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(addto3Dlist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(remove2Dfrom3D, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(transferfromManager, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(recenterIn2D, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(recenterProperties, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(clear2DButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(byPassChkbox)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(75, 75, 75)
+                        .addComponent(buttonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addto3Dlist, mv2Manager, recenterIn2D, recenterProperties, remove2Dfrom3D, transferfromManager});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(mv2Manager)
+                                .addGap(2, 2, 2)
+                                .addComponent(addto3Dlist)
+                                .addGap(7, 7, 7)
+                                .addComponent(remove2Dfrom3D)
+                                .addGap(4, 4, 4)
+                                .addComponent(transferfromManager)
+                                .addGap(1, 1, 1)
+                                .addComponent(recenterIn2D)
+                                .addGap(1, 1, 1)
+                                .addComponent(recenterProperties)
+                                .addGap(1, 1, 1)
+                                .addComponent(clear2DButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(byPassChkbox, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(buttonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1)
+                            .addComponent(jScrollPane2))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void addto3DlistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addto3DlistActionPerformed
+        
+       ImagePlus imp = WindowManager.getCurrentImage();
+       if(imp != null){
+           Roi roi = imp.getRoi();
+           if (roi != null) 
+                this.addNewRoi(roi);
+           else
+              ; //throw a error message that image does not have any active roi selection
+       }else
+           ; //throw a error message that there is no any active image that is being selected
+    }//GEN-LAST:event_addto3DlistActionPerformed
+
+    private void recenterIn2DActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recenterIn2DActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_recenterIn2DActionPerformed
+
+    private void make3DbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_make3DbuttonActionPerformed
+        // TODO add your handling code here:
+        
+       int[] selIdxs = this.gui2DRoiList.getSelectedIndices();
+       String roiName;
+       int count = 0;
+       Roi [] rois = new Roi[selIdxs.length];
+       for(Integer Idx : selIdxs){
+           roiName = Roi2DListModel.getElementAt(Idx);
+           rois[count++]  = Rois2D.get(Idx);
+           /*if(rois[count-1].getName() != roiName){
+              ; //Error message
+               
+           }*/
+           
+           
+       }
+       //Roi [] rois = Rois2D.
+       int uid = Roi3DListModel.getSize();
+       String baseName  = "Temp";
+     
+       Roi3D tmpRoi = new Roi3D(rois);
+       tmpRoi.setName(baseName + uid++);
+       this.Rois3D.add(tmpRoi);
+       
+       
+        
+    }//GEN-LAST:event_make3DbuttonActionPerformed
+
+    private void mv2ManagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mv2ManagerActionPerformed
+        
+        //int count  = Rois2D.size();
+        int [] selectedIndx = gui2DRoiList.getSelectedIndices();
+        for( int roiIdx : selectedIndx){
+            Manager.addRoi(this.Rois2D.get(roiIdx));
+        }
+       // this.Manager.addRoi();
+            
+            
+    }//GEN-LAST:event_mv2ManagerActionPerformed
+
+    private void remove2Dfrom3DActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_remove2Dfrom3DActionPerformed
+        // TODO add your handling code here:
+         int [] selectedIndx = gui2DRoiList.getSelectedIndices();
+        for( int roiIdx : selectedIndx){
+            this.removeRoi(Rois2D.get(roiIdx));
+        }
+    }//GEN-LAST:event_remove2Dfrom3DActionPerformed
+
+    private void transferfromManagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transferfromManagerActionPerformed
+        
+        Roi [] selRois = Manager.getSelectedRoisAsArray();
+        
+        for(Roi roi : selRois){
+            this.addNewRoi(roi);
+        }
+    }//GEN-LAST:event_transferfromManagerActionPerformed
+
+    private void clear2DButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear2DButtonActionPerformed
+        Roi2DListModel.clear();
+        Rois2D.clear();
+    }//GEN-LAST:event_clear2DButtonActionPerformed
+
+    private void byPassChkboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_byPassChkboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_byPassChkboxActionPerformed
+
+    private void deconstruct3Dto2DActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deconstruct3Dto2DActionPerformed
+        
+        int selIdx  = this.gui3DRoiList.getSelectedIndex();
+        
+        Roi [] sel2DRois = Rois3D.get(selIdx).getRoiSet();
+        this.clear2DButtonActionPerformed(evt);
+        
+        for(Roi roi : sel2DRois){
+            addNewRoi(roi);
+        }    
+    }//GEN-LAST:event_deconstruct3Dto2DActionPerformed
+
+    private void AddOnClickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddOnClickActionPerformed
+        // TODO add your handling code here:
+        if(AddOnClick.isSelected()){
+            add3Dradbtn.setEnabled(true);
+            add2Dradbtn.setEnabled(true);
+        }
+        else{
+            add3Dradbtn.setEnabled(false);
+            add2Dradbtn.setEnabled(false);
+        }
+            
+    }//GEN-LAST:event_AddOnClickActionPerformed
+
+    private void guiroiPrefixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guiroiPrefixActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_guiroiPrefixActionPerformed
+
+    private void guiroiHeightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guiroiHeightActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_guiroiHeightActionPerformed
+
+    private void gui3DDepthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gui3DDepthActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gui3DDepthActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    @Override
+    public void mouseClicked(MouseEvent me) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (AddOnClick.isSelected()){
+                int x = me.getX();
+                int y = me.getY();
+                
+                int Width = 10;             //Need to be set in AutoRoi Properties
+                int Height = 10;            //Need to be set in AutoRoi Properties
+                
+                ImagePlus imp = WindowManager.getCurrentImage();
+                if (imp != null){
+                    ImageWindow Win = imp.getWindow();
+                    ImageCanvas canvas = Win.getCanvas();
+
+                    int offscreenX = canvas.offScreenX(x);
+                    int offscreenY = canvas.offScreenY(y);
+                    int Start_x = offscreenX - (int)(Width/2);
+                    int Start_y = offscreenY - (int)(Height/2);
+                    
+                    int z = imp.getSlice();
+                    
+                    Roi tmpRoi = new OvalRoi(Start_x,Start_y,Width,Height);
+                    tmpRoi.setName("ROI"+"_"+Start_x + "_"+Start_y+"_"+z);
+                    tmpRoi.setLocation(Start_x,Start_y);
+                    tmpRoi.setPosition(z);
+                    
+                    imp.setRoi(tmpRoi, true);
+                    Manager.addRoi(tmpRoi);
+                    this.addNewRoi(tmpRoi);
+                    
+                    if(add3Dradbtn.isSelected()){
+                    // for(int curPos = z - thickness/2 ; curPos < endPos ; curPos++)
+                    // Roi tmpRoi = new OvalRoi(Start_x,Start_y,Width,Height);
+                    // tmpRoi.setName("ROI"+"_"+Start_x + "_"+Start_y+"_"+z);
+                    // tmpRoi.setLocation(Start_x,Start_y);
+                    // tmpRoi.setPosition(z);
+                    // imp.setRoi(tmpRoi, true);
+                    // Manager.addRoi(tmpRoi);
+                    // this.addNewRoi(tmpRoi);
+                    }
+                }
+        }
+    
+    
+    }
+
+    @Override
+    public void mousePressed(MouseEvent me) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent me) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent me) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseExited(MouseEvent me) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public void imageOpened(ImagePlus imp) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void imageClosed(ImagePlus imp) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void imageUpdated(ImagePlus imp) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
    
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox AddOnClick;
+    private javax.swing.JRadioButton add2Dradbtn;
+    private javax.swing.JRadioButton add3Dradbtn;
+    private javax.swing.JButton addto3Dlist;
+    private javax.swing.JButton buttonExit;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton buttonOpen3DRois;
+    private javax.swing.JCheckBox byPassChkbox;
+    private javax.swing.JButton clear2DButton;
+    private javax.swing.JButton deconstruct3Dto2D;
+    private javax.swing.JList<String> gui2DRoiList;
+    private javax.swing.JTextField gui3DDepth;
+    private javax.swing.JList<String> gui3DRoiList;
+    private javax.swing.JTabbedPane guiSettingsTab;
+    private javax.swing.JFrame guiSettingsWindow;
+    private javax.swing.JPanel guiautoROIProperties;
+    private javax.swing.JPanel guireCtrProperties;
+    private javax.swing.JTextField guiroiHeight;
+    private javax.swing.JTextField guiroiPrefix;
+    private javax.swing.JTextField guiroiWidth;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton make3Dbutton;
+    private javax.swing.JButton mv2Manager;
+    private javax.swing.JButton recenterIn2D;
+    private javax.swing.JButton recenterProperties;
+    private javax.swing.JButton remove2Dfrom3D;
+    private javax.swing.JButton transferfromManager;
     // End of variables declaration//GEN-END:variables
+
+    private void addNewRoi(Roi roi) {
+        //throw new UnsupportedOperationException("Not supported yet.");// To change body of generated methods, choose Tools | Templates.
+        this.Roi2DListModel.addElement(roi.getName());                  // Add the new roi to the list model which contains the data that is being displyed 
+                                                                        // in the guiRoi2D List. This only adds the name of the roi
+        this.Rois2D.add(roi);                                           // Ensure that the roi is added to the arraylist of the 2DRois
+        this.gui2DRoiList.setModel(Roi2DListModel);                     // Not sure if we need this but just in case update the model after addition
+        
+    }
+    private void removeRoi(Roi roi){
+        
+        boolean status = this.Rois2D.remove(roi);
+        if(status == false)
+            ;   //Throw error message 
+        else
+            this.Roi2DListModel.removeElement(roi.getName());
+        
+        this.gui2DRoiList.setModel(Roi2DListModel);
+    }
+
+    @Override
+    public void run() {
+        
+		while (!done) {
+			try {Thread.sleep(500);}
+			catch(InterruptedException e) {}
+			ImagePlus imp = WindowManager.getCurrentImage();
+			if (imp != null){
+				ImageCanvas canvas = imp.getCanvas();
+                          	if (canvas != previousCanvas){
+					if(previousCanvas != null)
+                                               previousCanvas.removeMouseListener(this);
+					canvas.addMouseListener(this);
+					previousCanvas = canvas;
+				}
+			}
+                        else{
+                            if(previousCanvas != null)
+                                previousCanvas.removeMouseListener(this);
+                            previousCanvas = null;
+                        }
+                           
+		}
+	}
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
 }

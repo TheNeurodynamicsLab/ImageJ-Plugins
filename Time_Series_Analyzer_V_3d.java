@@ -77,6 +77,11 @@ ClipboardOwner/**/, PlugIn, KeyListener/* for keyborad shortcut*/,Runnable,Image
         public void setIntegratedIntensity(boolean IntegratedIntensity){
             uiMeasure = (IntegratedIntensity) ? 3 : 2;
         }
+
+    /**
+     *
+     */
+    @Override
         public void run() {
 		while (!done) {
 			try {Thread.sleep(500);}
