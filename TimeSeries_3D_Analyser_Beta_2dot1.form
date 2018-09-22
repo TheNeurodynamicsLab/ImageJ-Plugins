@@ -57,7 +57,7 @@
                       </Group>
                       <Group type="102" attributes="0">
                           <Component id="panelClick2Move" max="32767" attributes="0"/>
-                          <EmptySpace pref="30" max="32767" attributes="0"/>
+                          <EmptySpace pref="23" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -386,14 +386,8 @@
             </Component>
             <Component class="javax.swing.JButton" name="btnResetinMove">
               <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Times New Roman" size="24" style="1"/>
-                </Property>
-                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="0" green="0" red="ff" type="rgb"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="R"/>
-                <Property name="toolTipText" type="java.lang.String" value="Click to Reset the Movement"/>
+                <Property name="text" type="java.lang.String" value="Ctr"/>
+                <Property name="toolTipText" type="java.lang.String" value="Click to Recenter"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.SoftBevelBorderInfo">
                     <BevelBorder/>
@@ -490,12 +484,8 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="object2OperateOn"/>
                 </Property>
-                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Move all the 3D Rois"/>
               </Properties>
-              <Events>
-                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="radBtnMvAllStateChanged"/>
-              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -503,7 +493,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder justification="1" title="Total Movement So Far">
+                <TitledBorder justification="1" title="Current Position">
                   <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
                     <EtchetBorder/>
                   </Border>
@@ -528,11 +518,11 @@
                               <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="txt_xShiftTot" linkSize="10" max="-2" attributes="0"/>
+                              <Component id="txt_xPos" linkSize="10" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
-                              <Component id="txt_yShiftTot" min="-2" pref="80" max="-2" attributes="0"/>
+                              <Component id="txt_yPos" min="-2" pref="80" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
-                              <Component id="txt_zShiftTot" linkSize="10" min="-2" pref="80" max="-2" attributes="0"/>
+                              <Component id="txt_zPos" linkSize="10" min="-2" pref="80" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -549,9 +539,9 @@
                       </Group>
                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="txt_yShiftTot" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="txt_xShiftTot" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="txt_zShiftTot" alignment="2" min="-2" max="-2" attributes="0"/>
+                          <Component id="txt_yPos" alignment="2" min="-2" max="-2" attributes="0"/>
+                          <Component id="txt_xPos" alignment="2" min="-2" max="-2" attributes="0"/>
+                          <Component id="txt_zPos" alignment="2" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="25" max="32767" attributes="0"/>
                   </Group>
@@ -564,14 +554,14 @@
                 <Property name="text" type="java.lang.String" value="y"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txt_yShiftTot">
+            <Component class="javax.swing.JTextField" name="txt_yPos">
               <Properties>
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="horizontalAlignment" type="int" value="4"/>
                 <Property name="text" type="java.lang.String" value="0"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txt_zShiftTot">
+            <Component class="javax.swing.JTextField" name="txt_zPos">
               <Properties>
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="horizontalAlignment" type="int" value="4"/>
@@ -579,7 +569,7 @@
                 <Property name="toolTipText" type="java.lang.String" value=""/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txt_xShiftTot">
+            <Component class="javax.swing.JTextField" name="txt_xPos">
               <Properties>
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="horizontalAlignment" type="int" value="4"/>
@@ -930,76 +920,6 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="object2OperateOn">
     </Component>
-    <Container class="javax.swing.JDialog" name="setBgdDialog">
-
-      <Layout>
-        <DimensionLayout dim="0">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="btn_OksetBgd" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                          <Component id="btn_cancelSetBgd" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-                          <Component id="txt_bgdValue" min="-2" pref="52" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace pref="60" max="32767" attributes="0"/>
-              </Group>
-          </Group>
-        </DimensionLayout>
-        <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
-                  <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="txt_bgdValue" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                      <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="btn_OksetBgd" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btn_cancelSetBgd" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="45" max="32767" attributes="0"/>
-              </Group>
-          </Group>
-        </DimensionLayout>
-      </Layout>
-      <SubComponents>
-        <Component class="javax.swing.JTextField" name="txt_bgdValue">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="0"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel12">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Set Background"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="btn_OksetBgd">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Ok"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_OksetBgdActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="btn_cancelSetBgd">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Cancel"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_cancelSetBgdActionPerformed"/>
-          </Events>
-        </Component>
-      </SubComponents>
-    </Container>
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>

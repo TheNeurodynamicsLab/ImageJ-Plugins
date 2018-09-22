@@ -49,7 +49,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author Balaji
  */
-public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnable, MouseListener/*required for add on click*/,ImageListener /*required for knowing if the active image is been closed*/ {
+public class TimeSeries_3D_Analyser__2dot1_rel extends javax.swing.JFrame implements Runnable, MouseListener/*required for add on click*/,ImageListener /*required for knowing if the active image is been closed*/ {
     
     RoiManager Manager;               //Handle to store and access the native ROIManager Instance. 
     ImagePlus currentImp,currSlice;   //Place holders to store and refer the currently active imageplus and the current displayed slice
@@ -136,7 +136,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     /**
      * Creates new form TimeSeries_3D_Analyser
      */
-    public TimeSeries_3D_Analyser() {
+    public TimeSeries_3D_Analyser__2dot1_rel() {
         
         if(RoiManager.getInstance() == null){       //No previous instance of Roi Manager; User has not invoked the ROIManager tool yet. 
              Manager = new RoiManager();            //Create a new instance of the RoiManager and obtain a handle to it.
@@ -155,13 +155,13 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
         }
         initComponents();
         
@@ -1395,7 +1395,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                         try {
                             roi3DFileSaver(fileOut,roi);
                     } catch (IOException ex) {
-                        Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }else{
@@ -1403,7 +1403,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 try {
                     roi3DFileSaver(fileOut,Rois3D.get(Idx));
                 } catch (IOException ex) {
-                    Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
            // roi3DFileSaver(fileOut, tmpRoi);
@@ -1426,7 +1426,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 System.out.print(fName);
                 fOut = new ZipOutputStream(new FileOutputStream(fName));
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TimeSeries_3D_Analyser__2dot1_rel.class.getName()).log(Level.SEVERE, null, ex);
             }
             Manager.reset();
             Roi [] rois = tmpRoi.getRoiSet();

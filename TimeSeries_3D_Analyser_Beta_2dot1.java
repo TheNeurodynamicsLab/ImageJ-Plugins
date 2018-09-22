@@ -5,7 +5,6 @@
  */
 package NDL_Plugins;
 
-import plugins.NDL_Plugins.*;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -23,7 +22,6 @@ import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageStatistics;
-import java.awt.HeadlessException;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +47,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author Balaji
  */
-public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnable, MouseListener/*required for add on click*/,ImageListener /*required for knowing if the active image is been closed*/ {
+public class TimeSeries_3D_Analyser_Beta_2dot1 extends javax.swing.JFrame implements Runnable, MouseListener/*required for add on click*/,ImageListener /*required for knowing if the active image is been closed*/ {
     
     RoiManager Manager;               //Handle to store and access the native ROIManager Instance. 
     ImagePlus currentImp,currSlice;   //Place holders to store and refer the currently active imageplus and the current displayed slice
@@ -89,9 +87,6 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private double bgd;
     private boolean recentering;
     private ShapeRoi combinedRoi;
-    private int xShiftTotal;
-    private int yShiftTotal;
-    private int zShiftTotal;
 
     private void deconstruct3Dto2D(int selIdx) {
         
@@ -136,7 +131,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     /**
      * Creates new form TimeSeries_3D_Analyser
      */
-    public TimeSeries_3D_Analyser() {
+    public TimeSeries_3D_Analyser_Beta_2dot1() {
         
         if(RoiManager.getInstance() == null){       //No previous instance of Roi Manager; User has not invoked the ROIManager tool yet. 
              Manager = new RoiManager();            //Create a new instance of the RoiManager and obtain a handle to it.
@@ -155,13 +150,13 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
         }
         initComponents();
         
@@ -225,9 +220,9 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         radBtnMvAll = new javax.swing.JRadioButton();
         panCurrPos = new javax.swing.JPanel();
         yCurPosLabel = new javax.swing.JLabel();
-        txt_yShiftTot = new javax.swing.JTextField();
-        txt_zShiftTot = new javax.swing.JTextField();
-        txt_xShiftTot = new javax.swing.JTextField();
+        txt_yPos = new javax.swing.JTextField();
+        txt_zPos = new javax.swing.JTextField();
+        txt_xPos = new javax.swing.JTextField();
         xCurPosLabel = new javax.swing.JLabel();
         zCurPosLabel = new javax.swing.JLabel();
         guiSettingsWindow = new javax.swing.JFrame();
@@ -257,11 +252,6 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         btnGrp_2D_OR_3D_addOnClk = new javax.swing.ButtonGroup();
         typeOfMovement = new javax.swing.ButtonGroup();
         object2OperateOn = new javax.swing.ButtonGroup();
-        setBgdDialog = new javax.swing.JDialog();
-        txt_bgdValue = new javax.swing.JTextField();
-        jLabel12 = new javax.swing.JLabel();
-        btn_OksetBgd = new javax.swing.JButton();
-        btn_cancelSetBgd = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         mv2Manager = new javax.swing.JButton();
@@ -422,10 +412,8 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
             }
         });
 
-        btnResetinMove.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        btnResetinMove.setForeground(new java.awt.Color(255, 0, 0));
-        btnResetinMove.setText("R");
-        btnResetinMove.setToolTipText("Click to Reset the Movement");
+        btnResetinMove.setText("Ctr");
+        btnResetinMove.setToolTipText("Click to Recenter");
         btnResetinMove.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnResetinMove.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -472,13 +460,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         radBtnMvSel3DRoi.setText("Move the selected 3D Roi");
 
         object2OperateOn.add(radBtnMvAll);
-        radBtnMvAll.setSelected(true);
         radBtnMvAll.setText("Move all the 3D Rois");
-        radBtnMvAll.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                radBtnMvAllStateChanged(evt);
-            }
-        });
 
         javax.swing.GroupLayout panelClick2MoveLayout = new javax.swing.GroupLayout(panelClick2Move);
         panelClick2Move.setLayout(panelClick2MoveLayout);
@@ -571,22 +553,22 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
 
         panelClick2MoveLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnEast, btnNorth, btnResetinMove, btnSouth, btnWest, btnZdn, btnZup});
 
-        panCurrPos.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Total Movement So Far", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        panCurrPos.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Current Position", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
         yCurPosLabel.setText("y");
 
-        txt_yShiftTot.setEditable(false);
-        txt_yShiftTot.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        txt_yShiftTot.setText("0");
+        txt_yPos.setEditable(false);
+        txt_yPos.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txt_yPos.setText("0");
 
-        txt_zShiftTot.setEditable(false);
-        txt_zShiftTot.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        txt_zShiftTot.setText("0");
-        txt_zShiftTot.setToolTipText("");
+        txt_zPos.setEditable(false);
+        txt_zPos.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txt_zPos.setText("0");
+        txt_zPos.setToolTipText("");
 
-        txt_xShiftTot.setEditable(false);
-        txt_xShiftTot.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        txt_xShiftTot.setText("0");
+        txt_xPos.setEditable(false);
+        txt_xPos.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txt_xPos.setText("0");
 
         xCurPosLabel.setText("x");
 
@@ -608,15 +590,15 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                         .addComponent(zCurPosLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(52, 52, 52))
                     .addGroup(panCurrPosLayout.createSequentialGroup()
-                        .addComponent(txt_xShiftTot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_xPos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txt_yShiftTot, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_yPos, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txt_zShiftTot, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_zPos, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(26, 26, 26))))
         );
 
-        panCurrPosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txt_xShiftTot, txt_zShiftTot});
+        panCurrPosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txt_xPos, txt_zPos});
 
         panCurrPosLayout.setVerticalGroup(
             panCurrPosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -627,9 +609,9 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                     .addComponent(zCurPosLabel))
                 .addGap(5, 5, 5)
                 .addGroup(panCurrPosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(txt_yShiftTot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txt_xShiftTot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txt_zShiftTot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_yPos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_xPos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_zPos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
 
@@ -670,7 +652,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(TranslateRoiLayout.createSequentialGroup()
                         .addComponent(panelClick2Move, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap(30, Short.MAX_VALUE))))
+                        .addContainerGap(23, Short.MAX_VALUE))))
         );
 
         guiSettingsWindow.setTitle("Settings");
@@ -876,55 +858,6 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         );
 
         guiSettingsWindowLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {guiSettingsCancelBtn, guiSettingsOkBtn});
-
-        txt_bgdValue.setText("0");
-
-        jLabel12.setText("Set Background");
-
-        btn_OksetBgd.setText("Ok");
-        btn_OksetBgd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_OksetBgdActionPerformed(evt);
-            }
-        });
-
-        btn_cancelSetBgd.setText("Cancel");
-        btn_cancelSetBgd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_cancelSetBgdActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout setBgdDialogLayout = new javax.swing.GroupLayout(setBgdDialog.getContentPane());
-        setBgdDialog.getContentPane().setLayout(setBgdDialogLayout);
-        setBgdDialogLayout.setHorizontalGroup(
-            setBgdDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(setBgdDialogLayout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addGroup(setBgdDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(setBgdDialogLayout.createSequentialGroup()
-                        .addComponent(btn_OksetBgd)
-                        .addGap(36, 36, 36)
-                        .addComponent(btn_cancelSetBgd))
-                    .addGroup(setBgdDialogLayout.createSequentialGroup()
-                        .addComponent(jLabel12)
-                        .addGap(35, 35, 35)
-                        .addComponent(txt_bgdValue, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(60, Short.MAX_VALUE))
-        );
-        setBgdDialogLayout.setVerticalGroup(
-            setBgdDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(setBgdDialogLayout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addGroup(setBgdDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_bgdValue, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12))
-                .addGap(31, 31, 31)
-                .addGroup(setBgdDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_OksetBgd)
-                    .addComponent(btn_cancelSetBgd))
-                .addContainerGap(45, Short.MAX_VALUE))
-        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Time Series 3D");
@@ -1395,7 +1328,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                         try {
                             roi3DFileSaver(fileOut,roi);
                     } catch (IOException ex) {
-                        Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }else{
@@ -1403,7 +1336,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 try {
                     roi3DFileSaver(fileOut,Rois3D.get(Idx));
                 } catch (IOException ex) {
-                    Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
            // roi3DFileSaver(fileOut, tmpRoi);
@@ -1426,7 +1359,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 System.out.print(fName);
                 fOut = new ZipOutputStream(new FileOutputStream(fName));
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(TimeSeries_3D_Analyser.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TimeSeries_3D_Analyser_Beta_2dot1.class.getName()).log(Level.SEVERE, null, ex);
             }
             Manager.reset();
             Roi [] rois = tmpRoi.getRoiSet();
@@ -1732,7 +1665,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 
                 /**Calculation of Initial Parameters 
                  **/
-                params2[0] = this.bgd != 0 ? bgd : 128;
+                params2[0] = this.bgd != 0 ? bgd : 0;
                 params2[1] = params[0] /*+ this.bgd*/;
                 params2[2] = params[1];
                 params2[3]  = params[2];
@@ -1782,8 +1715,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private void btnSetBackGroundActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetBackGroundActionPerformed
         this.btnMeasure3D.setEnabled(true);
         if(Rois2D.isEmpty()){
-            this.txt_bgdValue.setText(Double.toString(bgd));
-            setBgdDialog.setVisible(true);
+            
         }else{
             ShapeRoi combination = new ShapeRoi(Rois2D.get(1));
             ShapeRoi sr;
@@ -1815,19 +1747,8 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
 
     private void btnResetinMoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetinMoveActionPerformed
        // TODO add your handling code here:
-       this.xShiftTotal *= -1;
-       this.yShiftTotal *= -1;
-       this.zShiftTotal *= -1;
-       
-       MvRois(true,this.radBtnMvAll.isSelected() , xShiftTotal, yShiftTotal, zShiftTotal);
-       
-       xShiftTotal  = yShiftTotal = zShiftTotal = 0;
-       this.txt_xShiftTot.setText(""+xShiftTotal);
-       this.txt_yShiftTot.setText(""+yShiftTotal);
-       this.txt_zShiftTot.setText(""+zShiftTotal);
-       
-       this.imageUpdated(currentImp);
-     // this. btnRecenter3DActionPerformed(evt);
+        
+      this. btnRecenter3DActionPerformed(evt);
       
       
     }//GEN-LAST:event_btnResetinMoveActionPerformed
@@ -1840,127 +1761,67 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private void btnNorthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNorthActionPerformed
         // TODO add your handling code here:
         double yStep = Double.valueOf(txt_yStepSz.getText())*(-1);
-        
-        if(this.radBtnMvAll.isSelected()){ //allRois
+        if(true){ //allRois
             for(Roi3D roi3D : Rois3D){
                 roi3D.translateRoisXYrel(0, yStep);
             }
                 
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).translateRoisXYrel(0, yStep);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
-            }
-        yShiftTotal += yStep;
-        txt_yShiftTot.setText(Integer.toString(yShiftTotal));
-        this.imageUpdated(currentImp);
+        }
     }//GEN-LAST:event_btnNorthActionPerformed
 
     private void btnSouthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSouthActionPerformed
         // TODO add your handling code here:
         double yStep = Double.valueOf(txt_yStepSz.getText());
-        if(this.radBtnMvAll.isSelected()){ //allRois
+        if(true){ //allRois
             for(Roi3D roi3D : Rois3D){
                 roi3D.translateRoisXYrel(0, yStep);
             }
                 
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).translateRoisXYrel(0, yStep);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
-            }
-        yShiftTotal += yStep;
-        txt_yShiftTot.setText(Integer.toString(yShiftTotal));
-        this.imageUpdated(currentImp);
+        }
     }//GEN-LAST:event_btnSouthActionPerformed
 
     private void btnWestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnWestActionPerformed
         // TODO add your handling code here:
         double xStep = Double.valueOf(txt_xStepSz.getText())*(-1);
-        if(this.radBtnMvAll.isSelected()){ //allRois
-            Rois3D.forEach((roi3D) -> {
+        if(true){ //allRois
+            for(Roi3D roi3D : Rois3D){
                 roi3D.translateRoisXYrel(xStep,0);
-            });
-                
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).translateRoisXYrel(xStep,0);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
             }
-        xShiftTotal += xStep;
-        txt_xShiftTot.setText(Integer.toString(xShiftTotal));
-        this.imageUpdated(currentImp);
+                
+        }
     }//GEN-LAST:event_btnWestActionPerformed
 
     private void btnEastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEastActionPerformed
         // TODO add your handling code here:
         double xStep = Double.valueOf(txt_xStepSz.getText());
-        if(radBtnMvAll.isSelected()){ //allRois
+        if(true){ //allRois
             for(Roi3D roi3D : Rois3D){
                 roi3D.translateRoisXYrel(xStep,0);
             }
                 
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).translateRoisXYrel(xStep, 0);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
-            }
-        xShiftTotal += xStep;
-        txt_xShiftTot.setText(Integer.toString(xShiftTotal));
-        this.imageUpdated(currentImp);
+        }
     }//GEN-LAST:event_btnEastActionPerformed
 
     private void btnZupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZupActionPerformed
         // TODO add your handling code here:
-        int zStep = -1 * Integer.valueOf(txt_zStepSz.getText());
-        if(radBtnMvAll.isSelected()){ //allRois
-            for(Roi3D roi3D : Rois3D){
-                roi3D.repositionZ(zStep);
-            }      
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).repositionZ(zStep);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
-            }
-        zShiftTotal += zStep;
-        txt_zShiftTot.setText(Integer.toString(zShiftTotal));
-        this.imageUpdated(currentImp);
-    }//GEN-LAST:event_btnZupActionPerformed
-
-    private void btnZdnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZdnActionPerformed
-        // TODO add your handling code here:
-        int zStep =  Integer.valueOf(txt_zStepSz.getText());
+        int zStep = -1 * Integer.getInteger(txt_zStepSz.getText());
         if(true){ //allRois
             for(Roi3D roi3D : Rois3D){
                 roi3D.repositionZ(zStep);
             }
                 
-        }else{
-            int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1)
-                    Rois3D.get(selection).repositionZ(zStep);
-                else{
-                    javax.swing.JOptionPane.showMessageDialog(this, "Please select the 3D Roi that you want to translate or select move all rois");
-                }           
+        }
+    }//GEN-LAST:event_btnZupActionPerformed
+
+    private void btnZdnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZdnActionPerformed
+        // TODO add your handling code here:
+        int zStep =  Integer.getInteger(txt_zStepSz.getText());
+        if(true){ //allRois
+            for(Roi3D roi3D : Rois3D){
+                roi3D.repositionZ(zStep);
             }
-        zShiftTotal += zStep;
-        txt_zShiftTot.setText(Integer.toString(zShiftTotal));
-        this.imageUpdated(currentImp);
+                
+        }
     }//GEN-LAST:event_btnZdnActionPerformed
 
     private void btnMoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMoveActionPerformed
@@ -1971,79 +1832,25 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
         int zShift = Integer.valueOf(txt_zDist.getText());
         
         boolean relative = this.radBtn_RelativeMove.isSelected();
-        boolean allRois = this.radBtnMvAll.isSelected();     
-       
-        if(relative){
-            MvRois(relative, allRois, xShift, yShift, zShift);
-            xShiftTotal += xShift;
-            yShiftTotal += yShift;
-            zShiftTotal += zShift;
-        }else{
-            if(allRois)
-               javax.swing.JOptionPane.showMessageDialog(this,"You can not move all the ROIs to same location!"
-                       + "either move relatively or select an ROi");
-            else{
-                int selection = this.gui3DRoiList.getSelectedIndex();
-                if(selection != -1){
-                    Roi3D tmpRoi = Rois3D.get(selection);
-                    tmpRoi.FindCenter();
-                    
-                    int xShiftAct = tmpRoi.getCenterX() - xShift;
-                    int yShiftAct = tmpRoi.getCenterY() - yShift;
-                    int zShiftAct = tmpRoi.getCenterZ() - zShift;
-                    
-                    Rois3D.get(selection).translateRoiXYrel(xShiftAct, yShiftAct, zShiftAct);
-                    Rois3D.get(selection).repositionZ(zShiftAct);
-                    
-                    xShiftTotal += xShiftAct;
-                    yShiftTotal += yShiftAct;
-                    zShiftTotal += zShiftAct;
-                }
-            }
-        }
+        boolean allRois = this.radBtnMvAll.isSelected();
         
-        this.imageUpdated(currentImp);
-    }//GEN-LAST:event_btnMoveActionPerformed
-
-    private void radBtnMvAllStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_radBtnMvAllStateChanged
-        // TODO add your handling code here:
-        xShiftTotal = 0;
-        yShiftTotal = 0;
-        zShiftTotal = 0;
-        if(radBtnMvAll.isSelected())
-            this.gui3DRoiList.clearSelection();         //if no selection is made then the entire list is used
-        
-    }//GEN-LAST:event_radBtnMvAllStateChanged
-
-    private void btn_OksetBgdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_OksetBgdActionPerformed
-        // TODO add your handling code here:
-        this.bgd = Double.valueOf(this.txt_bgdValue.getText());
-        this.setBgdDialog.setVisible(false);
-    }//GEN-LAST:event_btn_OksetBgdActionPerformed
-
-    private void btn_cancelSetBgdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelSetBgdActionPerformed
-        // TODO add your handling code here:
-        setBgdDialog.setVisible(false);
-    }//GEN-LAST:event_btn_cancelSetBgdActionPerformed
-
-    private void MvRois(boolean relative, boolean allRois, int xShift, int yShift, int zShift) throws HeadlessException {
         if(relative){
             
-            if(allRois){
+            if(allRois){ 
                 //relative and allrois
                 for(Roi3D roi3D : Rois3D){
                     roi3D.translateRoisXYrel(xShift,yShift);
                     roi3D.repositionZ(zShift);
                 }
             }
-            else{
-                //relative and move only the selection
-                //code for shifting the selected 3dRoi
+            else{  
+                    //relative and move only the selection
+                    //code for shifting the selected 3dRoi
                 int selection = this.gui3DRoiList.getSelectedIndex();
                 if(selection != -1){
                     Roi3D tRoi3D = Rois3D.get(selection);
                     tRoi3D.translateRoisXYrel(xShift, yShift);
-                    tRoi3D.repositionZ(zShift);
+                    tRoi3D.repositionZ(zShift); 
                 }
                 else{
                     javax.swing.JOptionPane.showMessageDialog(this,"No Selection is made. Select one of the ROi3D");
@@ -2051,7 +1858,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                 }
                 
             }
-            
+           
         }
         else{                   //it is absolute
             if(allRois){           //allRois
@@ -2070,7 +1877,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                     tRoi3D.translateRoisXY(xShift, yShift);
                     tRoi3D.FindCenter();
                     zShift -= tRoi3D.getCenterZ();
-                    tRoi3D.repositionZ(zShift);
+                    tRoi3D.repositionZ(zShift); 
                 }
                 else{
                     javax.swing.JOptionPane.showMessageDialog(this,"No Selection is made. Select one of the ROi3D");
@@ -2080,7 +1887,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
             }
             
         }
-    }
+    }//GEN-LAST:event_btnMoveActionPerformed
 
     public void recenter(ImagePlus imp, Roi[] rois, int sliceNo){
         recentering = true; //started
@@ -2292,7 +2099,7 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
                     }
                     currentImp.setRoi(combinedRoi);
                 }else{
-                    roi = Rois3D.get(selIdx).get2DRoi(currentImp.getSlice());
+                    roi = Rois3D.get(selIdx).get2DRoi(selIdx);
                     currentImp.setRoi(roi);
                 }
             }
@@ -2329,8 +2136,6 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private javax.swing.JButton btnWest;
     private javax.swing.JButton btnZdn;
     private javax.swing.JButton btnZup;
-    private javax.swing.JButton btn_OksetBgd;
-    private javax.swing.JButton btn_cancelSetBgd;
     private javax.swing.JButton buttonAutoRoi;
     private javax.swing.JButton buttonExit;
     private javax.swing.JCheckBox chkBxRectrOnAdding;
@@ -2356,7 +2161,6 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2384,19 +2188,17 @@ public class TimeSeries_3D_Analyser extends javax.swing.JFrame implements Runnab
     private javax.swing.JButton remove2Dfrom3D;
     private javax.swing.JScrollPane scrlPane_2D_RoiLst;
     private javax.swing.JScrollPane scrlPane_3D_RoiLst;
-    private javax.swing.JDialog setBgdDialog;
     private javax.swing.JCheckBox showAllRois;
     private javax.swing.JLabel stepsizeLabel;
     private javax.swing.JButton transferfromManager;
-    private javax.swing.JTextField txt_bgdValue;
     private javax.swing.JTextField txt_xDist;
-    private javax.swing.JTextField txt_xShiftTot;
+    private javax.swing.JTextField txt_xPos;
     private javax.swing.JTextField txt_xStepSz;
     private javax.swing.JTextField txt_yDist;
-    private javax.swing.JTextField txt_yShiftTot;
+    private javax.swing.JTextField txt_yPos;
     private javax.swing.JTextField txt_yStepSz;
     private javax.swing.JTextField txt_zDist;
-    private javax.swing.JTextField txt_zShiftTot;
+    private javax.swing.JTextField txt_zPos;
     private javax.swing.JTextField txt_zStepSz;
     private javax.swing.ButtonGroup typeOfMovement;
     private javax.swing.JLabel xCurPosLabel;
